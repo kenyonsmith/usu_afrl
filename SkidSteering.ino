@@ -7,6 +7,11 @@ void setup_skid_steer() {
 
 }
 
+void stop_vehicle() {
+  analogWrite(LEFT_MOTOR, 0);
+  analogWrite(RIGHT_MOTOR, 0);
+}
+
 void skid_steer() {
   // put your main code here, to run repeatedly:
   // RIGHT_MOTOR is right motor LEFT_MOTOR is left motor
@@ -21,25 +26,23 @@ void skid_steer() {
   int nunchuckx = 128;
   int held = 0;
   // Hold c button for at least 1 second to turn nunchuck on or off
-  while (onoff == 0 && held < 10)
-  {
-    delay(100);
-    held++;
-  }
-  if (held < 10){
-    // do nothing
-  }else{
-   count++;
-  }
-  if (count > 1) {
-    count = 0;
-  }
-  Serial.println(count);
-  if (count == 1) {
+//  while (onoff == 0 && held < 10)
+//  {
+//    delay(100);
+//    held++;
+//  }
+//  if (held < 10){
+//    // do nothing
+//  }else{
+//   count++;
+//  }
+//  if (count > 1) {
+//    count = 0;
+//  }
+//  if (count == 1) {
     nunchucky = joy_y_axis();
     nunchuckx = joy_x_axis();
-  }
-
+//  }
   // Nunchuck to Arduino to Motor Controller
 
   // first, calculate forward speed, assuming no turning
