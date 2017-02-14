@@ -9,6 +9,7 @@
   
   const int    MAX_STOP = 74;         // from 0-74, the vehicle will be stopped
   const int	   MAX_REVERSE = 125;     // from 75-125, the vehicle will be in full reverse
+  const int    MIN_VARIABLE = 124;
   const int    MAX_VARIABLE = 250;    // from 126-250, the vehicle will be variable speed (187.5 is stop)
   const int    MAX_FORWARD = 255;     // from 251-255, the vehicle will be full forward
   const double CONTROLLER_STOP = (MAX_VARIABLE - MAX_REVERSE) / 2;

@@ -1,5 +1,5 @@
 #define MOTOR_PIN 3
-
+int count = 0;
 void setup() {
   // put your setup code here, to run once:
   setup_nunchuck();
