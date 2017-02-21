@@ -12,7 +12,6 @@ void loop() {
   int  y = ZERO_POS_1;
 
   delay(100);
-  
   // first, run the Nunchuck communication
   if (nunchuck_loop()) {
 	// we got a response
