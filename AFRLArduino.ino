@@ -1,4 +1,5 @@
 int count = 0;
+#include "const.h"
 void setup() {
   // put your setup code here, to run once:
   setup_nunchuck();
