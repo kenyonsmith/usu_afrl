@@ -41,8 +41,7 @@
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "57164fa41a1046d8bc7c224b13981802";
-//char auth[] = "8e46435febd74d44b6daba029d7b9384";
+char auth[] = "YourAuthToken";
 
 SoftwareSerial SerialBLE(10, 11); // RX, TX
 
@@ -51,13 +50,13 @@ BLYNK_WRITE(V1) {
   int y = param[1].asInt();
 
   // Do something with x and y
-  //  Serial.print("X = ");
-  //  Serial.print(x);
-  //  Serial.print("; Y = ");
-  //  Serial.println(y);
+  Serial.print("X = ");
+  Serial.print(x);
+  Serial.print("; Y = ");
+  Serial.println(y);
 }
 
-void setup_app()
+void setup()
 {
   // Debug console
   Serial.begin(9600);
@@ -68,7 +67,7 @@ void setup_app()
   Serial.println("Waiting for connections...");
 }
 
-void app()
+void loop()
 {
   Blynk.run();
 }
