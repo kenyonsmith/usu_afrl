@@ -68,7 +68,7 @@ Pixy pixy;  // Declare the camera object
 ServoLoop panLoop(200, 200);  // Servo loop for pan
 ServoLoop tiltLoop(150, 200); // Servo loop for tilt
 
-//ZumoMotors motors;  // declare the motors on the zumo
+
 
 //---------------------------------------
 // Setup - runs once at startup
@@ -79,6 +79,8 @@ void setup_beacon()
   Serial.print("Starting...\n");
 
   pixy.init();
+  pinMode(LEFT_MOTOR, OUTPUT);
+  pinMode(RIGHT_MOTOR, OUTPUT);
 }
 
 uint32_t lastBlockTime = 0;
@@ -168,16 +170,18 @@ void FollowBlock(int trackedBlock)
   size -= size >> 3;
 
   // Forward speed decreases as we approach the object (size is larger)
-  int forwardSpeed = constrain(400 - (size/256), -100, 400);  
+  int forwardSpeed = constrain(255 - (size/2.54), 86, 255);  
 
   // Steering differential is proportional to the error times the forward speed
   int32_t differential = (followError + (followError * forwardSpeed))>>8;
 
   // Adjust the left and right speeds by the steering differential.
-  int leftSpeed = constrain(forwardSpeed + differential, -400, 400);
-  int rightSpeed = constrain(forwardSpeed - differential, -400, 400);
+  int leftSpeed = constrain(forwardSpeed + differential, 0, 255);
+  int rightSpeed = constrain(forwardSpeed - differential, 0, 255);
 
   // And set the motor speeds
+  analogWrite(RIGHT_MOTOR, rightspeed);
+  analogWrite(LEFT_MOTOR, leftspeed);
  // motors.setLeftSpeed(leftSpeed);
   //motors.setRightSpeed(rightSpeed);
 }
