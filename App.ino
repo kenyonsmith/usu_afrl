@@ -35,13 +35,16 @@
 /* Comment this out to disable prints and save space */
 #define BLYNK_PRINT Serial
 
-
 #include <BlynkSimpleSerialBLE.h>
 #include <SoftwareSerial.h>
+#include "const.h"
+
+int  app_x = ZERO_POS_1;
+int  app_y = ZERO_POS_1;
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "YourAuthToken";
+char auth[] = "57164fa41a1046d8bc7c224b13981802";
 
 SoftwareSerial SerialBLE(10, 11); // RX, TX
 
@@ -54,9 +57,19 @@ BLYNK_WRITE(V1) {
   Serial.print(x);
   Serial.print("; Y = ");
   Serial.println(y);
+  app_x = x;
+  app_y = y;
 }
 
-void setup()
+int app_x_axis() {
+  return app_x;
+}
+
+int app_y_axis() {
+  return app_y;
+}
+
+void setup_app()
 {
   // Debug console
   Serial.begin(9600);
@@ -67,7 +80,9 @@ void setup()
   Serial.println("Waiting for connections...");
 }
 
-void loop()
+void loop_app()
 {
+  app_x = ZERO_POS_1;
+  app_y = ZERO_POS_1;
   Blynk.run();
 }
