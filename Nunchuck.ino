@@ -230,28 +230,28 @@ void nunchuck_print ()
  int c_btn = c_button();
  int z_btn = z_button();
  
- Serial.print (joy_x, DEC);
- Serial.print ("\t");
-
- Serial.print (joy_y, DEC);
- Serial.print ("\t");
-
- Serial.print (accel_x, DEC);
- Serial.print ("\t");
-
- Serial.print (accel_y, DEC);
- Serial.print ("\t");
-
- Serial.print (accel_z, DEC);
- Serial.print ("\t");
-
- Serial.print (z_btn, DEC);
- Serial.print ("\t");
-
- Serial.print (c_btn, DEC);
- Serial.print ("\t");
-
- Serial.print ("\r\n");
+// Serial.print (joy_x, DEC);
+// Serial.print ("\t");
+//
+// Serial.print (joy_y, DEC);
+// Serial.print ("\t");
+//
+// Serial.print (accel_x, DEC);
+// Serial.print ("\t");
+//
+// Serial.print (accel_y, DEC);
+// Serial.print ("\t");
+//
+// Serial.print (accel_z, DEC);
+// Serial.print ("\t");
+//
+// Serial.print (z_btn, DEC);
+// Serial.print ("\t");
+//
+// Serial.print (c_btn, DEC);
+// Serial.print ("\t");
+//
+// Serial.print ("\r\n");
 }
 
 // Decode data format that original Nunchuck uses with old init sequence. This never worked with

@@ -1,5 +1,5 @@
 
-#include <SPI.h>  
+#include <SPI.h>
 #include <Pixy.h>
 
 #define X_CENTER    160L
@@ -17,15 +17,15 @@
 //---------------------------------------
 class ServoLoop
 {
-public:
-  ServoLoop(int32_t proportionalGain, int32_t derivativeGain);
+  public:
+    ServoLoop(int32_t proportionalGain, int32_t derivativeGain);
 
-  void update(int32_t error);
+    void update(int32_t error);
 
-  int32_t m_pos;
-  int32_t m_prevError;
-  int32_t m_proportionalGain;
-  int32_t m_derivativeGain;
+    int32_t m_pos;
+    int32_t m_prevError;
+    int32_t m_proportionalGain;
+    int32_t m_derivativeGain;
 };
 
 // ServoLoop Constructor
@@ -37,23 +37,23 @@ ServoLoop::ServoLoop(int32_t proportionalGain, int32_t derivativeGain)
   m_prevError = 0x80000000L;
 }
 
-// ServoLoop Update 
+// ServoLoop Update
 // Calculates new output based on the measured
 // error and the current state.
 void ServoLoop::update(int32_t error)
 {
   long int velocity;
   char buf[32];
-  if (m_prevError!=0x80000000)
-  { 
-    velocity = (error*m_proportionalGain + (error - m_prevError)*m_derivativeGain)>>10;
+  if (m_prevError != 0x80000000)
+  {
+    velocity = (error * m_proportionalGain + (error - m_prevError) * m_derivativeGain) >> 10;
 
     m_pos += velocity;
-    if (m_pos>RCS_MAX_POS) 
+    if (m_pos > RCS_MAX_POS)
     {
-      m_pos = RCS_MAX_POS; 
+      m_pos = RCS_MAX_POS;
     }
-    else if (m_pos<RCS_MIN_POS) 
+    else if (m_pos < RCS_MIN_POS)
     {
       m_pos = RCS_MIN_POS;
     }
@@ -79,8 +79,6 @@ void setup_beacon()
   Serial.print("Starting...\n");
 
   pixy.init();
-  pinMode(LEFT_MOTOR, OUTPUT);
-  pinMode(RIGHT_MOTOR, OUTPUT);
 }
 
 uint32_t lastBlockTime = 0;
@@ -88,27 +86,27 @@ uint32_t lastBlockTime = 0;
 //---------------------------------------
 // Main loop - runs continuously after setup
 //---------------------------------------
-bool loop_beacon()
-{ 
+int beacon_y = 127;
+int beacon_x = 128;
+void loop_beacon()
+{
   uint16_t blocks;
   blocks = pixy.getBlocks();
-  bool foundSomething = false;
 
   // If we have blocks in sight, track and follow them
   if (blocks)
   {
     int trackedBlock = TrackBlock(blocks);
-   FollowBlock(trackedBlock);
+    FollowBlock(trackedBlock);
     lastBlockTime = millis();
-    foundSomething = true;
-  }  
+  }
   else if (millis() - lastBlockTime > 100)
   {
-    //motors.setLeftSpeed(0);
-    //motors.setRightSpeed(0);
+    beacon_y = 127;
+    beacon_x = 128;
     ScanForBlocks();
   }
-  return foundSomething;
+ 
 }
 
 int oldX, oldY, oldSignature;
@@ -155,7 +153,7 @@ int TrackBlock(int blockCount)
 //---------------------------------------
 // Follow blocks via the Zumo robot drive
 //
-// This code makes the robot base turn 
+// This code makes the robot base turn
 // and move to follow the pan/tilt tracking
 // of the head.
 //---------------------------------------
@@ -166,24 +164,34 @@ void FollowBlock(int trackedBlock)
 
   // Size is the area of the object.
   // We keep a running average of the last 8.
-  size += pixy.blocks[trackedBlock].width * pixy.blocks[trackedBlock].height; 
+  size += pixy.blocks[trackedBlock].width * pixy.blocks[trackedBlock].height;
   size -= size >> 3;
 
   // Forward speed decreases as we approach the object (size is larger)
-  int forwardSpeed = constrain(255 - (size/2.54), 86, 255);  
+  int beacon_y = constrain(255 - (size / 2.54), 86, 255);
 
   // Steering differential is proportional to the error times the forward speed
-  int32_t differential = (followError + (followError * forwardSpeed))>>8;
+  //int32_t differential = (followError + (followError * forwardSpeed)) >> 8;
 
   // Adjust the left and right speeds by the steering differential.
-  int leftSpeed = constrain(forwardSpeed + differential, 0, 255);
-  int rightSpeed = constrain(forwardSpeed - differential, 0, 255);
+  if (followError > 200) {
+    beacon_x = abs(followError/400)*127+128;
+  }
+  else if (followError < -200) {
+    beacon_x = abs(followError/400)*127;
+  }
+  else if (followError >=-200 && followError <=200){
+    beacon_x = 128;
+  }
 
-  // And set the motor speeds
-  analogWrite(RIGHT_MOTOR, rightspeed);
-  analogWrite(LEFT_MOTOR, leftspeed);
- // motors.setLeftSpeed(leftSpeed);
-  //motors.setRightSpeed(rightSpeed);
+  
+}
+int beacon_x_axis() {
+  return beacon_x;
+}
+
+int beacon_y_axis() {
+  return beacon_y;
 }
 
 //---------------------------------------
@@ -201,19 +209,19 @@ void ScanForBlocks()
   {
     lastMove = millis();
     panLoop.m_pos += scanIncrement;
-    if ((panLoop.m_pos >= RCS_MAX_POS)||(panLoop.m_pos <= RCS_MIN_POS))
+    if ((panLoop.m_pos >= RCS_MAX_POS) || (panLoop.m_pos <= RCS_MIN_POS))
     {
       tiltLoop.m_pos = random(RCS_MAX_POS * 0.6, RCS_MAX_POS);
       scanIncrement = -scanIncrement;
       if (scanIncrement < 0)
       {
-       // motors.setLeftSpeed(-250);
+        // motors.setLeftSpeed(-250);
         //motors.setRightSpeed(250);
       }
       else
       {
         //motors.setLeftSpeed(+180);
-       // motors.setRightSpeed(-180);
+        // motors.setRightSpeed(-180);
       }
       delay(random(250, 500));
     }
