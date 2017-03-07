@@ -38,14 +38,15 @@
 
 #include <BlynkSimpleSerialBLE.h>
 #include <SoftwareSerial.h>
-#include "const.h"
+//#include "const.h"
 
-int  app_x = ZERO_POS_1;
-int  app_y = ZERO_POS_1;
+int  app_x = 127;//ZERO_POS_1;
+int  app_y = 127;//ZERO_POS_1;
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-//char auth[] = "8e46435febd74d44b6daba029d7b9384";
-char auth[] = "57164fa41a1046d8bc7c224b13981802";
+//char auth[] = "5b3c219d02064bf6a5d64ed986864d76"; // Samsung
+char auth[] = "398ee9323e1b4d2a9ffb911a0a04107f"; // Billy's Phone
+//char auth[] = "57164fa41a1046d8bc7c224b13981802"; // Moriah's Phone
 
 
 SoftwareSerial SerialBLE(10, 11); // RX, TX
@@ -56,16 +57,31 @@ int joySide;    //Joystick in the side directions
 
 double bar;     //Sliding Bar used for maximum speed
 
-void notifyOnButtonPress(){
+void killSwitch(){
   int pwrBtn = !digitalRead(2);
- // int irBtn = !digitalRead(1);
   if(pwrBtn){
     Serial.print("pwr = ");
     Serial.println(pwrBtn);
-    Blynk.notify("Yaaay... pwrBtn is pressed!");
+    Blynk.notify("Yaaay... button is pressed!");
   }
 }
-
+void irSwitch(){
+  int irBtn = !digitalRead(3);
+  if(irBtn){
+    Serial.print("ir = ");
+    Serial.println(irBtn);
+    Blynk.notify("Yaaay... button is pressed!");
+  }
+}
+WidgetMap myMap(V4);
+void deviceLocation(){
+  myMap.clear();
+  int index = 1;
+  float lat = 51.5074;
+  float lon = 115.1278;
+  myMap.location(index, lat, lon, "value");
+  
+}
 BLYNK_WRITE(V2){
   bar = param.asDouble();
 
@@ -74,14 +90,14 @@ BLYNK_WRITE(V2){
 }
 
 BLYNK_WRITE(V1) {
-  joyUp = param[0].asInt()-127*(bar/100)+127;
-  joySide = param[1].asInt()-127*(bar/100)+127;
+  joyUp = (param[1].asInt()-127)*(bar/100)+127;
+  joySide = param[0].asInt();
  
   // Do something with x and y
   Serial.print("X = ");
-  Serial.print(joyUp);
+  Serial.print(joySide);
   Serial.print("; Y = ");
-  Serial.println(joySide);
+  Serial.println(joyUp);
   app_x = joySide;
   app_y = joyUp;
  
@@ -95,22 +111,26 @@ int app_y_axis() {
   return app_y;
 }
 
-void setup_app()
+void setup()
 {
   // Debug console
-  Serial.begin(115200);
+  Serial.begin(9600);
 
-  SerialBLE.begin(115200);
+  SerialBLE.begin(9600);
   Blynk.begin(SerialBLE, auth);
-  pinMode(2, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(2), notifyOnButtonPress, CHANGE);
+  //pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), killSwitch, CHANGE);
+  //pinMode(1, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(3), irSwitch, CHANGE);
   Serial.println("Waiting for connections...");
 }
 
-void loop_app()
+void loop()
 {
   
   Blynk.run();
+  Blynk.virtualWrite(V3,3.14);
+  deviceLocation();
   //Serial.println("This will make me happy if I see this.");
   
 }
