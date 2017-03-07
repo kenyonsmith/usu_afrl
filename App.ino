@@ -35,30 +35,56 @@
 /* Comment this out to disable prints and save space */
 #define BLYNK_PRINT Serial
 
+
 #include <BlynkSimpleSerialBLE.h>
 #include <SoftwareSerial.h>
 #include "const.h"
 
 int  app_x = ZERO_POS_1;
 int  app_y = ZERO_POS_1;
-
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
+//char auth[] = "8e46435febd74d44b6daba029d7b9384";
 char auth[] = "57164fa41a1046d8bc7c224b13981802";
 
+
 SoftwareSerial SerialBLE(10, 11); // RX, TX
+//int pwrBtn;     //the soft kill switch for the app
+//int irBtn;      //Button turning on and off Ir system
+int joyUp;      //joystick in the up directions
+int joySide;    //Joystick in the side directions
+
+double bar;     //Sliding Bar used for maximum speed
+
+void notifyOnButtonPress(){
+  int pwrBtn = !digitalRead(2);
+ // int irBtn = !digitalRead(1);
+  if(pwrBtn){
+    Serial.print("pwr = ");
+    Serial.println(pwrBtn);
+    Blynk.notify("Yaaay... pwrBtn is pressed!");
+  }
+}
+
+BLYNK_WRITE(V2){
+  bar = param.asDouble();
+
+  Serial.print("Bar = ");
+  Serial.println(bar);
+}
 
 BLYNK_WRITE(V1) {
-  int x = param[0].asInt();
-  int y = param[1].asInt();
-
+  joyUp = param[0].asInt()-127*(bar/100)+127;
+  joySide = param[1].asInt()-127*(bar/100)+127;
+ 
   // Do something with x and y
   Serial.print("X = ");
-  Serial.print(x);
+  Serial.print(joyUp);
   Serial.print("; Y = ");
-  Serial.println(y);
-  app_x = x;
-  app_y = y;
+  Serial.println(joySide);
+  app_x = joySide;
+  app_y = joyUp;
+ 
 }
 
 int app_x_axis() {
@@ -72,17 +98,19 @@ int app_y_axis() {
 void setup_app()
 {
   // Debug console
-  Serial.begin(9600);
+  Serial.begin(115200);
 
-  SerialBLE.begin(9600);
+  SerialBLE.begin(115200);
   Blynk.begin(SerialBLE, auth);
-
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), notifyOnButtonPress, CHANGE);
   Serial.println("Waiting for connections...");
 }
 
 void loop_app()
 {
-  app_x = ZERO_POS_1;
-  app_y = ZERO_POS_1;
+  
   Blynk.run();
+  //Serial.println("This will make me happy if I see this.");
+  
 }

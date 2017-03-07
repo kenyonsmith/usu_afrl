@@ -1,43 +1,45 @@
-// Test code for Adafruit GPS modules using MTK3329/MTK3339 driver
+// Test code for Adafruit GPS modules/shields using MTK3329/MTK3339 driver
 //
 // This code shows how to listen to the GPS module in an interrupt
 // which allows the program to have more 'freedom' - just parse
 // when a new NMEA sentence is available! Then access data when
-// desired.
+// desired. -ada
 //
-// Tested and works great with the Adafruit Ultimate GPS module
-// using MTK33x9 chipset
-//    ------> http://www.adafruit.com/products/746
-// Pick one up today at the Adafruit electronics shop 
-// and help support open source hardware & software! -ada
+// Added verbosity and corrections by PhantomYoYo in A.D. 2014 ;)
+
+/******************* CONSTANTS AND VARIABLES *******************
+****************************************************************/
 
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
 
-// If you're using a GPS module:
+// If you're using a bare GPS module:
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
-// If using software serial (sketch example default):
+// Then wire for software serial (sketch example default):
 //   Connect the GPS TX (transmit) pin to Digital 3
 //   Connect the GPS RX (receive) pin to Digital 2
-// If using hardware serial (e.g. Arduino Mega):
+// Or wire for hardware serial (e.g. Arduino Mega):
 //   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
 //   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
 
 // If you're using the Adafruit GPS shield, change 
 // SoftwareSerial mySerial(3, 2); -> SoftwareSerial mySerial(8, 7);
 // and make sure the switch is set to SoftSerial
+// This shield is *not* capable of software serial on a Mega!
+// Instead add 2 jumper wires:
+// Connect jumper from TX pad to Arduino RX1, RX2 or RX3
+// Connect jumper from RX pad to Arduino TX1, TX2 or TX3
 
-// If using software serial, keep this line enabled
+// To use software serial, keep these two lines enabled
 // (you can change the pin numbers to match your wiring):
 //SoftwareSerial mySerial(3, 2);
-
-// If using hardware serial (e.g. Arduino Mega), comment out the
-// above SoftwareSerial line, and enable this line instead
-// (you can change the Serial number to match your wiring):
-
-Adafruit_GPS GPS(&Serial1);
+//Adafruit_GPS GPS(&mySerial);
+//
+// To use hardware serial (e.g. Arduino Mega), comment
+// out the above two lines and enable these two lines instead:
 HardwareSerial mySerial = Serial1;
+Adafruit_GPS GPS(&Serial1);
 
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
@@ -49,11 +51,16 @@ HardwareSerial mySerial = Serial1;
 boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
-void setup()  
+
+/************************ ARDUINO SETUP  ***********************
+****************************************************************/
+
+void setup_GPS()  
 {
     
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
+  // make sure your Serial Monitor is set to 115200 to see data visually
   Serial.begin(115200);
   Serial.println("Adafruit GPS library basic test!");
 
@@ -64,8 +71,6 @@ void setup()
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   // uncomment this line to turn on only the "minimum recommended" data
   //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
-  //uncomment this line to turn on all the available data - for 9600 baud you'll want 1 Hz rate
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_ALLDATA);
   // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
   // the parser doesn't care about other sentences at this time
   
@@ -115,7 +120,12 @@ void useInterrupt(boolean v) {
 }
 
 uint32_t timer = millis();
-void loop()                     // run over and over again
+
+
+/******************** MAIN LOOP ********************************
+****************************************************************/
+
+void loop_GPS()                     // run over and over again
 {
   // in case you are not using the interrupt above, you'll
   // need to 'hand query' the GPS, not suggested :(
@@ -131,7 +141,7 @@ void loop()                     // run over and over again
   if (GPS.newNMEAreceived()) {
     // a tricky thing here is if we print the NMEA sentence, or data
     // we end up not listening and catching other sentences! 
-    // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
+    // so be very wary if using OUTPUT_ALLDATA and trying to print out data
     //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
   
     if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
@@ -161,10 +171,6 @@ void loop()                     // run over and over again
       Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
       Serial.print(", "); 
       Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
-      Serial.print("Location (in degrees, works with Google Maps): ");
-      Serial.print(GPS.latitudeDegrees, 4);
-      Serial.print(", "); 
-      Serial.println(GPS.longitudeDegrees, 4);
       
       Serial.print("Speed (knots): "); Serial.println(GPS.speed);
       Serial.print("Angle: "); Serial.println(GPS.angle);
