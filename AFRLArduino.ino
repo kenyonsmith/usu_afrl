@@ -8,23 +8,36 @@ int LitItUp = 22;
 void setup() {
   // put your setup code here, to run once:
   
+  Serial.begin (115200);
+  Serial.println("HAHAHAHA");
   setup_nunchuck();
+  //Serial.println("Before skid steer");
   setup_skid_steer();
+
+  Serial.println("Before app");
   setup_app();
+  
+  Serial.println("Before beacon");
   setup_beacon();
+  
+  Serial.println("Before GPS");
   setup_GPS();
+  
+  Serial.println("Before battery reader");
   setup_battery_reader();
-  Serial1.begin(115200);
   pinMode(LitItUp, OUTPUT);
+
+  Serial1.begin(115200);
+  Serial.println("Success!");
 }
 
 void loop() {
   bool nunchuck = false;
   int  x = ZERO_POS_1;
   int  y = ZERO_POS_1;
-  loop_GPS();
-  loop_battery_reader();
-  delay(100);
+  //loop_GPS();
+  //loop_battery_reader();
+  delay(1000);
   
   // first, run the Nunchuck communication
   if (nunchuck_loop()) {
@@ -55,6 +68,20 @@ void loop() {
     y = 127;
     skid_steer(x,y,c_button());
   }
+
+  Serial.print("NX: ");
+  Serial.print(joy_x_axis());
+  Serial.print(", NY: ");
+  Serial.print(joy_y_axis());
+  Serial.print(", AX: ");
+  Serial.print(app_x_axis());
+  Serial.print(", AY: ");
+  Serial.print(app_y_axis());
+  Serial.print(", X: ");
+  Serial.print(x);
+  Serial.print(", Y: ");
+  Serial.print(y);
+  Serial.println(" :)");
 
   if (Serial1.available())
   {Serial.print(Serial1.read());

@@ -23,8 +23,8 @@ int ledPin = 13;
 
 void setup_nunchuck ()
 {
- Serial.begin (115200);
-
+  outbuf[0] = ZERO_POS_1;
+  outbuf[1] = ZERO_POS_1;
 
 #ifdef POWER_VIA_PORT_C2_C3    // power supply of the Nunchuck via port C2 and C3
  PORTC &=~ _BV(PORTC2);
@@ -34,30 +34,37 @@ void setup_nunchuck ()
 #endif
 
  Wire.begin(); // initialize i2c
+ Wire.beginTransmission(WII_NUNCHUCK_TWI_ADR);
+ if (Wire.endTransmission() == 0) {
+  // we found the device
+  Serial.println("Device found");
+  
+  // we need to switch the TWI speed, because the nunchuck uses Fast-TWI
+  // normally set in hardware\libraries\Wire\utility\twi.c twi_init(
+  // this is the way of doing it without modifying the original files
+ #define TWI_FREQ_NUNCHUCK 400000L
+  TWBR = ((16000000 / TWI_FREQ_NUNCHUCK) - 16) / 2;
 
- // we need to switch the TWI speed, because the nunchuck uses Fast-TWI
- // normally set in hardware\libraries\Wire\utility\twi.c twi_init()
- // this is the way of doing it without modifying the original files
-#define TWI_FREQ_NUNCHUCK 400000L
- TWBR = ((16000000 / TWI_FREQ_NUNCHUCK) - 16) / 2;
+  nunchuck_init(0); // send the initialization handshake
 
- nunchuck_init(0); // send the initialization handshake
-
- // display the identification bytes, must be "00 00 A4 20 00 00" for the Nunchuck
- byte i;
+  // display the identification bytes, must be "00 00 A4 20 00 00" for the Nunchuck
+  byte i;
  
- if(readControllerIdent(outbuf) == 0)
- {
-   Serial.print("Ident=");
-   for (i = 0; i < WII_TELEGRAM_LEN; i++) 
-   {
-     Serial.print(outbuf[i], HEX);
-     Serial.print(' ');
-   }
-   Serial.println();
- }
+  if(readControllerIdent(outbuf) == 0)
+  {
+    Serial.print("Ident=");
+    for (i = 0; i < WII_TELEGRAM_LEN; i++) 
+    {
+      Serial.print(outbuf[i], HEX);
+      Serial.print(' ');
+    }
+    Serial.println();
+  }
 
- Serial.println("Finished setup");
+  Serial.println("Finished setup");  
+ } else {
+  Serial.println("No Nunchuck device found");
+ }
 }
 
 // params:

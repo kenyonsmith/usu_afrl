@@ -75,7 +75,7 @@ ServoLoop tiltLoop(150, 200); // Servo loop for tilt
 //---------------------------------------
 void setup_beacon()
 {
-  Serial.begin(115200);
+//  Serial.begin(115200);
   Serial.print("Starting...\n");
 
   pixy.init();

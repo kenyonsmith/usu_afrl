@@ -2,9 +2,6 @@
 void setup_skid_steer() {
   pinMode(LEFT_MOTOR, OUTPUT);
   pinMode(RIGHT_MOTOR, OUTPUT);
-
-
-
 }
 
 void stop_vehicle() {
@@ -104,6 +101,8 @@ void skid_steer(int x, int y, bool cbtn) {
     r_speed = 187.5 + turning_speed;
     l_speed = 187.5 - turning_speed;
   }
+  Serial.print(x);
+  Serial.print(' ');
   Serial.print(y);
   Serial.print(' ');
   Serial.print(l_speed);
