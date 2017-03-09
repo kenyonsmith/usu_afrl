@@ -6,18 +6,22 @@ int count = 0;
 int LitItUp = 22;
 double lat = 41.742670;
 double lon = -111.806592;
+bool app_paired = false;
 
 void setup() {
   // put your setup code here, to run once:
 
   Serial.begin (115200);
-  //Serial.println("HAHAHAHA");
   setup_nunchuck();
   //Serial.println("Before skid steer");
   setup_skid_steer();
 
-  Serial.println("Before app");
-  setup_app();
+  init_check_pairing();
+  if (check_pairing()) {
+    app_paired = true;
+    Serial.println("App connecting... now!");
+    setup_app();
+  }
 
   Serial.println("Before beacon");
   setup_beacon();
@@ -52,7 +56,7 @@ void loop() {
   loop_app(lat,lon);
   //deviceLocation(41.753072,-111.837857);
   //loop_battery_reader();
-  //delay(1000);
+  delay(100);
 
   // first, run the Nunchuck communication
   if (nunchuck_loop()) {
@@ -65,18 +69,22 @@ void loop() {
 
     x = joy_x_axis();
     y = joy_y_axis();
-
   } else nunchuck = false;
 
   if ((x >= ZERO_POS_1) && (x <= ZERO_POS_2) && (y >= ZERO_POS_1) && (y <= ZERO_POS_2)) {
-    // check for input from app
-    x = app_x_axis();
-    y = app_y_axis();
-  } else if ((x >= ZERO_POS_1) && (x <= ZERO_POS_2) && (y >= ZERO_POS_1) && (y <= ZERO_POS_2) && irSwitch() == 1) {
+    // check for input from app, because we got nothing from Nunchuck
+    app_paired = double_check_pairing(app_paired);
+    if (app_paired) {
+      x = app_x_axis();
+      y = app_y_axis();
+    }
+  }
+  
+  if ((x >= ZERO_POS_1) && (x <= ZERO_POS_2) && (y >= ZERO_POS_1) && (y <= ZERO_POS_2) && irSwitch() == 1) {
+    // check for input from beacon, because we got nothing from Nunchuck or from app
     x = beacon_x_axis();
     y = beacon_y_axis();
   }
-
 
   if ((x > ZERO_POS_2) || (x < ZERO_POS_1) || (y > ZERO_POS_2) || (y < ZERO_POS_1)) {
     skid_steer(x, y, c_button());

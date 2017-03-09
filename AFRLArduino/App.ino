@@ -41,6 +41,8 @@ char auth[] = "398ee9323e1b4d2a9ffb911a0a04107f"; // Billy's Phone
 //char auth[] = "57164fa41a1046d8bc7c224b13981802"; // Moriah's Phone
 //char auth[] = "1cf0a97c2cdb445ba218caeacd8d5e18"; // Kenyon's Phone
 
+int pairCheckVal = 0;
+
 
 SoftwareSerial SerialBLE(10, 11); // RX, TX
 int pwrBtn;     //the soft kill switch for the app
@@ -82,8 +84,55 @@ BLYNK_WRITE(V1) {
   Serial.println(joyUp);
 */  app_x = joySide;
   app_y = joyUp;
- 
 }
+
+void init_check_pairing() {
+  pinMode(A0, INPUT);
+}
+
+bool check_light() {
+  if (analogRead(A0) > 500)
+    return true;
+  else
+    return false;
+}
+
+bool check_pairing() {
+  bool result = true;
+  for (int i = 0; i < 4; i++) {
+    int val = analogRead(A0);
+    if (check_light() == false) {
+      result = false;
+      i = 4;
+    }
+    delay(50);
+  }
+  return result;
+}
+
+bool double_check_pairing(bool app_paired) {
+  if (app_paired == true) {
+    // make sure it's still paired (possibly faulty because will attempt to connect even
+    // if light is flashing and currently off)
+    app_paired = check_light();
+//    if (app_paired == false) {
+//      Serial.println("Connection lost");
+//    } else {
+//      Serial.println("Connection still there!");
+//    }
+  } else {
+    if (pairCheckVal >= 10) {
+      // check for pairing every 10th call, about every second
+      pairCheckVal = 0;
+      app_paired = check_pairing();
+//      if (app_paired == true) {
+//        Serial.println("Connection found!");
+//      }
+    } else ++pairCheckVal;
+  }
+  return app_paired;
+}
+
 int irSwitch() {
   return irBtn;
 }
