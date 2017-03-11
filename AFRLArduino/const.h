@@ -15,8 +15,8 @@
   const double CONTROLLER_STOP = (MAX_VARIABLE - MAX_REVERSE) / 2;
   const double VARIABLE_RANGE = MAX_VARIABLE - CONTROLLER_STOP;
 
-  const int    ZERO_POS_1 = 127;
-  const int    ZERO_POS_2 = 128;
+  const int    ZERO_POS_1 = 117;
+  const int    ZERO_POS_2 = 138;
 
   const int    MAX_NUNCHUCK = 255;
   const int    MIN_NUNCHUCK = 0;

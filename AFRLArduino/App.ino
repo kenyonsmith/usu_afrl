@@ -58,7 +58,7 @@ void deviceLocation(double lat,double lon){
   int index = 1;
 
   myMap.location(index, lat, lon, "Vehicle");
-  Serial.println("Test");
+  //Serial.println("Test");
   
 }
 BLYNK_WRITE(V2){
