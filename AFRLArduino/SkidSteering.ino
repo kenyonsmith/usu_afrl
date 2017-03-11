@@ -1,9 +1,16 @@
 #include "const.h"
 void setup_skid_steer() {
+
   pinMode(LEFT_MOTOR, OUTPUT);
   pinMode(RIGHT_MOTOR, OUTPUT);
+  
 }
-
+  int l_speed;
+  int r_speed;
+  double turnradius;
+  double Vratio;
+  double straight_speed;
+  double turning_speed;
 void stop_vehicle() {
   analogWrite(LEFT_MOTOR, 0);
   analogWrite(RIGHT_MOTOR, 0);
@@ -12,36 +19,25 @@ void stop_vehicle() {
 void skid_steer(int x, int y, bool cbtn) {
   // put your main code here, to run repeatedly:
   // RIGHT_MOTOR is right motor LEFT_MOTOR is left motor
-  int l_speed;
-  int r_speed;
-  double turnradius;
-  double Vratio;
-  double straight_speed;
-  double turning_speed;
 
-  // Nunchuck to Arduino to Motor Controller
+
+  // Arduino to Motor Controller
 
   // first, calculate forward speed, assuming no turning
-  if (y > ZERO_POS_2) {
+  if (y > ZERO_POS_2 && x <= ZERO_POS_2 && x >= ZERO_POS_1) {
     // moving forward
     l_speed = y * 0.488189 + 125.512;
     r_speed = l_speed;
-  } else if (y < ZERO_POS_1) {
+  } else if (y < ZERO_POS_1 && x <= ZERO_POS_2 && x >= ZERO_POS_1) {
     // moving backward
     l_speed = y * 0.492063 + 124.508;
     r_speed = l_speed;
-  } else {
-    // not moving
-    l_speed = 0;
-    r_speed = l_speed;
   }
 
-  // first assume no turning
-
   // Turning
-  turnradius = (abs(x - 127.5) / ZERO_POS_2) * MAX_TURN_RADIUS;
-  Vratio = abs((turnradius + (VEHICLE_WIDTH / 2)) / (turnradius - (VEHICLE_WIDTH / 2)));
-
+  turnradius = ((abs(double(x) - double(ZERO_POS_1))) / double(ZERO_POS_1)) * double(MAX_TURN_RADIUS);
+  Vratio = (double(turnradius) + (double(VEHICLE_WIDTH) / 2.0)) / (double(turnradius) - (double(VEHICLE_WIDTH) / 2.0));
+  Serial.println(Vratio);
   if (x > ZERO_POS_2 && y > ZERO_POS_2) {
     // turning right, while going forwardnow
     straight_speed = y * 0.488189 + 125.512;
@@ -101,17 +97,22 @@ void skid_steer(int x, int y, bool cbtn) {
     r_speed = 187.5 + turning_speed;
     l_speed = 187.5 - turning_speed;
   }
-//  Serial.print(x);
-//  Serial.print(' ');
-//  Serial.print(y);
-//  Serial.print(' ');
-//  Serial.print(l_speed);
-//  Serial.print(' ');
-//  Serial.print(r_speed);
-//  Serial.print(' ');
-//  Serial.println(Vratio);
-//  analogWrite(RIGHT_MOTOR, r_speed);
-//  analogWrite(LEFT_MOTOR, l_speed);
+  if((x >= ZERO_POS_1) && (x <= ZERO_POS_2) && (y >= ZERO_POS_1) && (y <= ZERO_POS_2)) {
+    // not moving
+    l_speed = 0;
+    r_speed = l_speed;
+  }
+  Serial.print(x);
+  Serial.print(' ');
+  Serial.print(y);
+  Serial.print(' ');
+  Serial.print(l_speed);
+  Serial.print(' ');
+  Serial.print(r_speed);
+  Serial.println(' ');
+  
+  analogWrite(RIGHT_MOTOR, r_speed);
+  analogWrite(LEFT_MOTOR, l_speed);
 
   /*
     // Turning Right at max speed
@@ -149,3 +150,4 @@ void skid_steer(int x, int y, bool cbtn) {
 
   */
 }
+

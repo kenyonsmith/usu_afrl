@@ -229,3 +229,4 @@ void ScanForBlocks()
     pixy.setServos(panLoop.m_pos, tiltLoop.m_pos);
   }
 }
+

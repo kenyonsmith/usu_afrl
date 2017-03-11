@@ -115,19 +115,19 @@ bool double_check_pairing(bool app_paired) {
     // make sure it's still paired (possibly faulty because will attempt to connect even
     // if light is flashing and currently off)
     app_paired = check_light();
-//    if (app_paired == false) {
-//      Serial.println("Connection lost");
-//    } else {
-//      Serial.println("Connection still there!");
-//    }
+    if (app_paired == false) {
+      Serial.println("Connection lost");
+    } else {
+      Serial.println("Connection still there!");
+    }
   } else {
     if (pairCheckVal >= 10) {
       // check for pairing every 10th call, about every second
       pairCheckVal = 0;
       app_paired = check_pairing();
-//      if (app_paired == true) {
-//        Serial.println("Connection found!");
-//      }
+      if (app_paired == true) {
+        Serial.println("Connection found!");
+      }
     } else ++pairCheckVal;
   }
   return app_paired;
@@ -173,3 +173,4 @@ void loop_app(double lat, double lon)
   //Serial.println("This will make me happy if I see this.");
   
 }
+

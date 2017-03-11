@@ -2,6 +2,7 @@ int count = 0;
 
 #include <BlynkSimpleSerialBLE.h>
 #include <SoftwareSerial.h>
+#include <MemoryFree.h>
 #include "const.h"
 int LitItUp = 22;
 double lat = 41.742670;
@@ -9,8 +10,12 @@ double lon = -111.806592;
 bool app_paired = false;
 
 void setup() {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(100);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  delay(100);  
   // put your setup code here, to run once:
-
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin (115200);
   setup_nunchuck();
   //Serial.println("Before skid steer");
@@ -20,14 +25,14 @@ void setup() {
   if (check_pairing()) {
     app_paired = true;
     Serial.println("App connecting... now!");
-    setup_app();
+    //setup_app();
   }
 
   Serial.println("Before beacon");
-  setup_beacon();
+  //setup_beacon();
 
   Serial.println("Before GPS");
-  setup_GPS();
+  //setup_GPS();
 
   Serial.println("Before battery reader");
   setup_battery_reader();
@@ -46,7 +51,8 @@ int  y = ZERO_POS_1;
 
 
 void loop() {
-  
+  Serial.print("freeMemory()=");
+  Serial.println(freeMemory());
 
   loop_GPS();
   if (fix()) {
@@ -82,7 +88,7 @@ void loop() {
 
   if ((x >= ZERO_POS_1) && (x <= ZERO_POS_2) && (y >= ZERO_POS_1) && (y <= ZERO_POS_2)) {
     // check for input from app, because we got nothing from Nunchuck
-    app_paired = double_check_pairing(check_pairing());
+    app_paired = double_check_pairing(app_paired);
     if (app_paired) {
       if(app_x_axis() == 0 || app_y_axis() == 0){
         x = 127;
@@ -115,19 +121,19 @@ void loop() {
   }
   //  Serial.println(irSwitch());
   //
-  Serial.print("NX: ");
-  Serial.print(joy_x_axis());
-  Serial.print(", NY: ");
-  Serial.print(joy_y_axis());
-  Serial.print(", AX: ");
-  Serial.print(app_x_axis());
-  Serial.print(", AY: ");
-  Serial.print(app_y_axis());
-  Serial.print(", X: ");
-  Serial.print(x);
-  Serial.print(", Y: ");
-  Serial.print(y);
-  Serial.println(" :)");
+//  Serial.print("NX: ");
+//  Serial.print(joy_x_axis());
+//  Serial.print(", NY: ");
+//  Serial.print(joy_y_axis());
+//  Serial.print(", AX: ");
+//  Serial.print(app_x_axis());
+//  Serial.print(", AY: ");
+//  Serial.print(app_y_axis());
+//  Serial.print(", X: ");
+//  Serial.print(x);
+//  Serial.print(", Y: ");
+//  Serial.print(y);
+//  Serial.println(" :)");
 
   //  Serial.println(Latchar());
   //  Serial.println(Longchar());
@@ -155,3 +161,4 @@ void loop() {
 //    digitalWrite(LitItUp, LOW);
 //  }
 }
+
